@@ -1,0 +1,385 @@
+user.
+user1 -user_password
+
+
+admin
+-----------------------------------------------
+admin-adminpassword
+
+INSERT INTO users (username, password, email, role)
+VALUES ('user', '<?= password_hash("user_password", PASSWORD_DEFAULT) ?>', 'user@example.com', 'user'); 
+
+
+<?php
+session_start();
+$host = 'localhost';
+$db = 'dispatch';
+$user = 'root';
+$pass = '';
+
+$dsn = "mysql:host=$host;dbname=$db;charset=utf8mb4";
+$options = [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION];
+
+try {
+    $pdo = new PDO($dsn, $user, $pass, $options);
+} catch (PDOException $e) {
+    die("Connection failed: " . $e->getMessage());
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $username = $_POST['username'] ?? '';
+    $password = md5($_POST['password'] ?? ''); // Hash the input password
+
+    if (!empty($username) && !empty($password)) {
+        $stmt = $pdo->prepare("SELECT * FROM users WHERE username = ? AND password = ?");
+        $stmt->execute([$username, $password]);
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($user) {
+            $_SESSION['logged_in'] = true;
+            $_SESSION['username'] = $username;
+            $_SESSION['role'] = $user['role'];
+            
+            if ($user['role'] === 'admin') {
+                header("Location: dashboard.php");
+            } else {
+                header("Location: user_dashboard.php"); // Redirect to a user dashboard
+            }
+            exit();
+        } else {
+            $error_message = "Invalid login credentials!";
+        }
+    } else {
+        $error_message = "Please enter both username and password.";
+    }
+}
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <style>
+        /* Global Styles */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            background: url("./images/building.jpg") no-repeat center center fixed;
+            background-size: cover;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #fff;
+        }
+
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .login-box {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            max-width: 400px;
+            width: 100%;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+
+        .login-box h1 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        .form-group input[type="submit"] {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            padding: 12px;
+            font-size: 16px;
+        }
+
+        .form-group input[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+
+        .back-button {
+            margin-top: 10px;
+        }
+
+        .back-button a {
+            color: #007bff;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .back-button a:hover {
+            text-decoration: underline;
+        }
+
+        .error-message {
+            color: red;
+            margin-top: 15px;
+        }
+    </style
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<?php
+// help.php
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How May We Help You?</title>
+    <style>
+        /* Import Google font - Poppins */
+        @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;700&display=swap");
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Poppins", sans-serif;
+        }
+
+        body {
+            background-color: #f8f9fc;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .navbar {
+            background-color: #007bff;
+            color: #fff;
+            padding: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+        }
+
+        .navbar h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+
+        .navbar a {
+            color: #fff;
+            text-decoration: none;
+            padding: 10px;
+            margin: 0 5px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        .navbar a:hover {
+            background-color: #0056b3;
+        }
+
+        .navbar .logout-button {
+            background-color: #dc3545;
+            border: none;
+            color: #fff;
+            padding: 10px;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        .navbar .logout-button:hover {
+            background-color: #c82333;
+        }
+
+        .container {
+            max-width: 900px;
+            width: 100%;
+            margin: 20px auto;
+            padding: 20px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+        }
+
+        header {
+            font-size: 2rem;
+            color: #333;
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .form-section, .faq-section {
+            margin-top: 20px;
+        }
+
+        .input-box {
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .input-box label {
+            color: #333;
+        }
+
+        .input-box input, .input-box textarea {
+            width: 100%;
+            outline: none;
+            font-size: 1rem;
+            color: #707070;
+            margin-top: 8px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 10px;
+        }
+
+        .input-box textarea {
+            height: 150px;
+            resize: vertical;
+        }
+
+        button {
+            height: 50px;
+            width: 100%;
+            color: #fff;
+            font-size: 1rem;
+            font-weight: 500;
+            margin-top: 20px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: #007bff;
+        }
+
+        button:hover {
+            background: #0056b3;
+        }
+
+        .faq {
+            margin-top: 20px;
+        }
+
+        .faq h2 {
+            font-size: 1.5rem;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .faq-item {
+            margin-bottom: 15px;
+        }
+
+        .faq-item h3 {
+            font-size: 1.2rem;
+            color: #007bff;
+        }
+
+        .faq-item p {
+            font-size: 1rem;
+            color: #333;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <h1>Help Center</h1>
+        <div>
+            <a href="user_dashboard.php">Dashboard</a>
+            <a href="submit_letter.php">Submit Letter</a>
+            <a href="settings.php">Settings</a>
+            <a href="help.php">Help</a>
+            <form method="POST" action="user_dashboard.php" style="display: inline;">
+                <button class="logout-button" name="logout">Logout</button>
+            </form>
+        </div>
+    </div>
+    <div class="container">
+        <header>How May We Help You?</header>
+
+        <div class="form-section">
+            <form method="POST" action="process_help_request.php">
+                <div class="input-box">
+                    <label for="name">Name:</label>
+                    <input type="text" id="name" name="name" required>
+                </div>
+                <div class="input-box">
+                    <label for="email">Email:</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+                <div class="input-box">
+                    <label for="message">Message:</label>
+                    <textarea id="message" name="message" required></textarea>
+                </div>
+                <button type="submit">Send Request</button>
+            </form>
+        </div>
+
+        <div class="faq-section">
+            <div class="faq">
+                <h2>Frequently Asked Questions</h2>
+                <div class="faq-item">
+                    <h3>How do I reset my password?</h3>
+                    <p>To reset your password, go to the login page and click on "Forgot Password". Follow the instructions to reset it.</p>
+                </div>
+                <div class="faq-item">
+                    <h3>How can I update my profile?</h3>
+                    <p>You can update your profile information by navigating to the "Settings" page in your dashboard.</p>
+                </div>
+                <div class="faq-item">
+                    <h3>Who can I contact for technical support?</h3>
+                    <p>If you need technical support, you can use the contact form on this page or email us directly at support@example.com.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

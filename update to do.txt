@@ -1,0 +1,5 @@
+1.Nav bar- responsiveness for all pages . (making use of the head function)
+2. Work on the submit letter logic
+3.Work on the add users function 
+4.Work on the Help.php
+
